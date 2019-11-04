@@ -4,6 +4,10 @@ import requests
 import threading
 # pygame
 import pygame
+# Mysql database
+import mysql.connector
+
+
 graph_data = []
 item_data = []
 # needed for the api calls (item id's) probably not important anymore
@@ -14,13 +18,43 @@ black = (0, 0, 0)
 red = (255, 0, 0)
 blue = (143, 241, 245)
 green = (0, 255, 0)
+
+
+# To connect to database, make sure database 'osrs' exists
+try:
+    mydb = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="",
+    database="osrs"
+    )
+except:
+    print("Database OSRS could not be accessed")
+    exit()
+
+       
+# Get actual values from database
+# Currently getting values from ID 11248 (Electic Impling Jar)
+mycursor = mydb.cursor(dictionary=True)
+mycursor.execute("SELECT * FROM item WHERE ID=11248 ORDER BY time DESC LIMIT 14")
+
+myresult = mycursor.fetchall()
+itemprice = []
+itemdate = [] #Not used at the moment
+for result in myresult:
+  itemprice.append(result['price'])
+  itemdate.append(result['time']) #Not used at the moment
+
+
+# Turn values back in the right order (they are backwards)
+itemprice.reverse()
+
 # test values
 test_y = [
-            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-            [16, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 5],
-            [3, 17, 20, 5, 4, 30, 10, 7, 12, 14, 15, 5, 9, 21]
-          ]
+            itemprice
+        ]
 
+# Fill out graph
 
 # the graph class stores everything we need to calculate and draw the graph
 class Graph:
