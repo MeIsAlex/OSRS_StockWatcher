@@ -7,7 +7,6 @@ import pygame
 # Mysql database
 import mysql.connector
 
-
 graph_data = []
 item_data = []
 # needed for the api calls (item id's) probably not important anymore
@@ -19,40 +18,38 @@ red = (255, 0, 0)
 blue = (143, 241, 245)
 green = (0, 255, 0)
 
-
 # To connect to database, make sure database 'osrs' exists
 try:
-    mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="",
-    database="osrs"
+    mydb = mysql.connector.connect(cd
+        host="localhost",
+        user="root",
+        passwd="",
+        database="osrs"
     )
 except:
     print("Database OSRS could not be accessed")
     exit()
 
-       
 # Get actual values from database
 # Currently getting values from ID 11248 (Electic Impling Jar)
 mycursor = mydb.cursor(dictionary=True)
-mycursor.execute("SELECT * FROM item WHERE ID=11248 ORDER BY time DESC LIMIT 14")
+mycursor.execute("SELECT * FROM item WHERE ID=11248 ORDER BY time DESC LIMIT 10")
 
 myresult = mycursor.fetchall()
 itemprice = []
-itemdate = [] #Not used at the moment
+itemdate = []  # Not used at the moment
 for result in myresult:
-  itemprice.append(result['price'])
-  itemdate.append(result['time']) #Not used at the moment
-
+    itemprice.append(result['price'])
+    itemdate.append(result['time'])  # Not used at the moment
 
 # Turn values back in the right order (they are backwards)
 itemprice.reverse()
 
 # test values
 test_y = [
-            itemprice
-        ]
+    itemprice
+]
+
 
 # Fill out graph
 
@@ -65,53 +62,55 @@ class Graph:
         self.cords_y = []
         self.node_val = []
         self.lines = []
-        self.max_values = 14
+        self.max_values = len(itemdate)  # use itemdate to find max values
         self.increment = 0
         self.max_y = 0
         self.min_y = 0
 
-# finds the max and min value of all the items
-# we need this to dynamically change values on y-axis
-# also copy test_y to local array so we don't have to use globals everywhere
+    # finds the max and min value of all the items
+    # we need this to dynamically change values on y-axis
+    # also copy test_y to local array so we don't have to use globals everywhere
     def find_min_max(self):
         self.val_y = test_y.copy()
         if len(self.val_y) > 0:
             self.max_y = max(max(x) for x in self.val_y)
             self.min_y = min(min(x) for x in self.val_y)
 
-# calculate the values on the dots of the y-axis
+    # calculate the values on the dots of the y-axis
     def cal_node(self):
         diff = self.max_y - self.min_y
         temp = diff / (self.max_values - 1)
         for y in range(self.max_values):
             value = self.min_y + (y * temp)
             self.node_val.append(round(value, 1))
-        self.node_val.reverse()
+        self.node_val
 
-# draw the x and y axis
+    # draw the x and y axis
     def plot_axis(self):
         pygame.draw.line(SCREEN, black, (self.start_x, self.start_y), (self.start_x, (self.start_y - 420)), 3)
         pygame.draw.line(SCREEN, black, (self.start_x, self.start_y), ((self.start_x + 420), self.start_y), 3)
 
-# draw the dots on x and y axis and places values on y-axis
-# values x-axis coming soon
+    # draw the dots on x and y axis and places values on y-axis
+    # values x-axis coming soon
     def plot_points(self):
-        for y in range(14):
-            textsurface = myfont.render(str(self.node_val[y]), False, black)
-            cord_x = self.start_x + (y * 30)
+        increment = int(420 / self.max_values)
+        for y in range(self.max_values):
+            cord_x = self.start_x + (y * increment)
             pygame.draw.circle(SCREEN, black, (cord_x, self.start_y), 3)
-            cord_y = (self.start_y - 420) + (y * 30)
-            SCREEN.blit(textsurface, (self.start_x - 30, cord_y - 5))
+        for y in range(self.max_values):
+            cord_y = self.start_y-(y * increment)-increment
+            textsurface = myfont.render(str(self.node_val[y]), False, black)
+            SCREEN.blit(textsurface, (self.start_x - 40, cord_y - 5))
             pygame.draw.circle(SCREEN, black, (self.start_x, cord_y), 3)
 
-# make line classes
+    # make line classes
     def make_line(self):
         i = 0
         for x in self.val_y:
             self.lines.append(Line(i, x, self.max_y, self.min_y, self.max_values))
             i += 1
 
-# calls function for each item
+    # calls function for each item
     def draw_line(self):
         if len(self.lines) > 0:
             for i in range(len(self.lines)):
@@ -131,21 +130,23 @@ class Line:
         self.min_y = min_y
         self.max_values = max_val
 
-# calculate the coordinates of the values
+    # calculate the coordinates of the values
     def cal_val_y(self):
+        incr = 420/self.max_values
         if len(self.val_y) > 0:
             diff = self.max_y - self.min_y
-            temp = diff / (self.max_values - 1)
+            temp = diff / (self.max_values-1)
             for y in range(self.max_values):
-                value = (30 * (self.val_y[y] - self.min_y) / temp)
-                self.cords_y.append(graph.start_y - value - 30)
+                value = (incr * (self.val_y[y] - self.min_y) / temp)
+                self.cords_y.append(int(graph.start_y - value - incr))
 
-# draw the coordinates as a line graph
+    # draw the coordinates as a line graph
     def draw_cords(self):
+        incr = int(420 / self.max_values)
         if len(self.val_y) > 0:
             for y in range(self.max_values - 1):
-                cord_x1 = graph.start_x + (y * 30)
-                cord_x2 = graph.start_x + ((y + 1) * 30)
+                cord_x1 = graph.start_x + (y * incr)
+                cord_x2 = graph.start_x + ((y + 1) * incr)
                 if self.cords_y[y] < self.cords_y[y + 1]:
                     pygame.draw.line(SCREEN, red, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
                 else:
@@ -189,7 +190,7 @@ class InputBox:
                     ret_val = self.text
                     self.text = ""
                     self.textarea = font1.render(self.text, False, black)
-                    self.searches.append(Search(ret_val, (50 + self.amount*(25 + 5))))
+                    self.searches.append(Search(ret_val, (50 + self.amount * (25 + 5))))
                     self.amount += 1
                 elif event.key == pygame.K_BACKSPACE:
                     # remove the last value
@@ -224,7 +225,7 @@ class Search:
         SCREEN.blit(textarea, (self.rect.x + 3, self.rect.y + 3))
         pygame.draw.rect(SCREEN, black, self.remove, 1)
         pygame.draw.line(SCREEN, red, (self.remove.x, self.remove.y), (self.remove.x + 23, self.remove.y + 23), 3)
-        pygame.draw.line(SCREEN, red, (self.remove.x, (self.remove.y+23)), ((self.remove.x+23), self.remove.y), 3)
+        pygame.draw.line(SCREEN, red, (self.remove.x, (self.remove.y + 23)), ((self.remove.x + 23), self.remove.y), 3)
 
     def events(self, ev):
         if ev.type == pygame.MOUSEBUTTONDOWN:
@@ -298,10 +299,10 @@ while not finish:
     SCREEN.fill(white)
     graph.find_min_max()
     graph.cal_node()
+    graph.make_line()
     graph.draw_line()
     graph.plot_axis()
     graph.plot_points()
-    graph.make_line()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finish = True
