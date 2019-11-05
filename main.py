@@ -20,7 +20,7 @@ green = (0, 255, 0)
 
 # To connect to database, make sure database 'osrs' exists
 try:
-    mydb = mysql.connector.connect(cd
+    mydb = mysql.connector.connect(
         host="localhost",
         user="root",
         passwd="",
