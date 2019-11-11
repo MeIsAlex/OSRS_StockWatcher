@@ -198,5 +198,6 @@ while not finish:
         box.handle_event(event)
         box.remove_searches(event)
     box.show_searches()
+    search = box.get_searches()
     box.draw()
     pygame.display.flip()

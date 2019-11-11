@@ -59,6 +59,14 @@ class InputBox:
         for x in range(len(self.searches)):
             self.searches[x].draw()  # used to draw the searchresults
 
+    def get_searches(self):
+        if len(self.searches) > 0:
+            ret_val = []
+            for i in range(len(self.searches)):
+                ret_val.append(self.searches[i].text)
+            return ret_val
+
+
     def remove_searches(self, ev):
         x = 0
         while x < self.amount:
