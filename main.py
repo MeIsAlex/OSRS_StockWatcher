@@ -2,6 +2,7 @@
 # check commented out functions
 import requests
 import threading
+import json
 # pygame
 import pygame
 # Mysql database
@@ -18,19 +19,81 @@ red = (255, 0, 0)
 blue = (143, 241, 245)
 green = (0, 255, 0)
 
-# To connect to database, make sure database 'osrs' exists
-try:
-    mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="",
-        database="osrs"
-    )
-except:
-    print("Database OSRS could not be accessed")
-    exit()
+
+
+
+#Connect to database function
+def connectDB():
+     #To connect to database, make sure database 'osrs' exists
+    try:
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="",
+            database="osrs"
+        )
+        return mydb
+    except:
+        print("Database OSRS could not be accessed")
+        exit()
+
+
+
+
+#Get the last 14 days of data from an itemID and store in in the database
+def getItemData(itemID):
+
+    #Connect to database
+    mydb = connectDB()
+    #API call to get ID data from the last 180 days
+    response = requests.get("http://services.runescape.com/m=itemdb_oldschool/api/graph/"+str(itemID)+".json")
+
+    #convert to readable string
+    readApi = json.dumps(response.json(), indent=0)
+    readApi = readApi.splitlines()
+    itemsApi = []
+    timeApi = []
+    priceApi = []
+
+    #Only keep the 14 latest days of the item
+    for x in range(168,182):
+        itemsApi.append(readApi[x])
+
+    #Filter the JSON data so that we only keep the values we need (the time and price)
+    for x in range(len(itemsApi)):
+        timeEnd = itemsApi[x].find('"',2)
+        timeApi.append(itemsApi[x][1:timeEnd])
+        priceStart = itemsApi[x].find(" ")
+        if x == len(itemsApi) - 1:
+            priceApi.append(itemsApi[x][priceStart+1:])
+        else:
+            priceEnd = itemsApi[x].find(",")
+            priceApi.append(itemsApi[x][priceStart+1:priceEnd])
+            
+    #Make SQL query to insert all new values       
+    sql = "INSERT INTO item (time, price, id) VALUES (%s, %s, %s)"
+    values = []
+    mycursor = mydb.cursor()
+    for i in range(len(priceApi)): #Do this for every value
+        values = [timeApi[i],priceApi[i], itemID]
+        try: 
+            mycursor.execute(sql, values)
+            mydb.commit()
+            print(mycursor.rowcount, "was inserted.")
+        except: #If it couldn't be added, it probably already existed
+            print("Id: "+ str(itemID) +", time: "+ timeApi[i] + " already exists")
+
+
+
+
+
+            
+
+#Update database with data from ID 11248 (Electic Impling Jar)
+getItemData(11248)
 
 # Get actual values from database
+mydb = connectDB()
 # Currently getting values from ID 11248 (Electic Impling Jar)
 mycursor = mydb.cursor(dictionary=True)
 mycursor.execute("SELECT * FROM item WHERE ID=11248 ORDER BY time DESC LIMIT 10")
@@ -42,6 +105,7 @@ for result in myresult:
     itemprice.append(result['price'])
     itemdate.append(result['time'])  # Not used at the moment
 
+
 # Turn values back in the right order (they are backwards)
 itemprice.reverse()
 
@@ -49,7 +113,6 @@ itemprice.reverse()
 test_y = [
     itemprice
 ]
-
 
 # Fill out graph
 
