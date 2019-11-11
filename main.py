@@ -8,11 +8,20 @@ import pygame
 # Mysql database
 import mysql.connector
 
-graph_data = []
-item_data = []
-# needed for the api calls (item id's) probably not important anymore
-item_num = [4151, 4153, 4156]
-# some colors to make drawing easier and shorter
+
+
+#------------------------------------#
+# Global variables                   #
+#------------------------------------#
+
+#Array with all IDs
+itemDB = []
+#Array to store itemprices and dates, 
+itemPrice = []
+itemDate = []
+
+
+#Some colors to make drawing easier and shorter
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
@@ -21,6 +30,10 @@ green = (0, 255, 0)
 
 
 
+
+#------------------------------------#
+# Functions                          #
+#------------------------------------#
 
 #Connect to database function
 def connectDB():
@@ -36,12 +49,12 @@ def connectDB():
     except:
         print("Database OSRS could not be accessed")
         exit()
-
-
-
+   
+    #Close connection once done
+    mydb.close()
 
 #Get the last 14 days of data from an itemID and store in in the database
-def getItemData(itemID):
+def getItemDataApi(itemID):
 
     #Connect to database
     mydb = connectDB()
@@ -79,41 +92,65 @@ def getItemData(itemID):
         try: 
             mycursor.execute(sql, values)
             mydb.commit()
-            print(mycursor.rowcount, "was inserted.")
+            #print(mycursor.rowcount, "was inserted.")
         except: #If it couldn't be added, it probably already existed
-            print("Id: "+ str(itemID) +", time: "+ timeApi[i] + " already exists")
+            #print("Id: "+ str(itemID) +", time: "+ timeApi[i] + " already exists")
+            pass
 
+    #Close connection once done
+    mycursor.close()
+    mydb.close()
+    
+#Get list of item names and IDs
+def getItemsDB():
+    mydb = connectDB()
+    mycursor = mydb.cursor(dictionary=True)
+    sql = "SELECT * FROM itemname"
+    mycursor.execute(sql)
+    
+    myresult = mycursor.fetchall()
+    itemdate = []  # Not used at the moment
+    for result in myresult:
+        itemDB.append((result['itemID'],result['itemName']))
 
-
-
-
-            
-
-#Update database with data from ID 11248 (Electic Impling Jar)
-getItemData(11248)
+    #Close connection once done                    
+    mycursor.close()
+    mydb.close()
+    
+#Convert name to itemID
+def convertToID(name):
+    #Loop through all items to check if the name corresponds to an ID
+    for i in range(len(itemDB)):
+        if name == itemDB[i][1]:
+            return itemDB[i][0]
+    return "-1" #Return -1 in case the name wasn't found in the DB
 
 # Get actual values from database
-mydb = connectDB()
-# Currently getting values from ID 11248 (Electic Impling Jar)
-mycursor = mydb.cursor(dictionary=True)
-mycursor.execute("SELECT * FROM item WHERE ID=11248 ORDER BY time DESC LIMIT 10")
+def setItemValuesFromDB(itemID):
 
-myresult = mycursor.fetchall()
-itemprice = []
-itemdate = []  # Not used at the moment
-for result in myresult:
-    itemprice.append(result['price'])
-    itemdate.append(result['time'])  # Not used at the moment
+    #Clear any old values in variables
+    itemPrice.clear()
+    itemDate.clear()
+    
+    #Connect to DB
+    mydb = connectDB()
+    mycursor = mydb.cursor(dictionary=True)
+    #Get 14 latest values from DB for itemID
+    mycursor.execute("SELECT * FROM item WHERE ID="+ str(itemID)+ " ORDER BY time DESC LIMIT 14")
+    myresult = mycursor.fetchall()
 
+    for result in myresult:
+        itemPrice.append(result['price'])
+        itemDate.append(result['time'])
 
-# Turn values back in the right order (they are backwards)
-itemprice.reverse()
-
-# test values
-test_y = [
-    itemprice
-]
-
+    #Close connection
+    mycursor.close()
+    mydb.close()
+    
+    #Turn values back in the right order (they are backwards)
+    itemPrice.reverse()
+    itemDate.reverse()
+  
 # Fill out graph
 
 # the graph class stores everything we need to calculate and draw the graph
@@ -125,7 +162,7 @@ class Graph:
         self.cords_y = []
         self.node_val = []
         self.lines = []
-        self.max_values = len(itemdate)  # use itemdate to find max values
+        self.max_values = len(itemDate)  # use itemdate to find max values
         self.increment = 0
         self.max_y = 0
         self.min_y = 0
@@ -346,6 +383,29 @@ def get_item(url_i):
     item_data.clear()
 
 
+
+
+#------------------------------------#
+# Main program                       #
+#------------------------------------#
+
+#Get all itemData from database
+getItemsDB();
+
+#Try to find item name in database, and grab the corresponding ID 
+try:
+    #Possible item names Baby-, Young-, Gourmet-, Earth-, Essence-, Eclectic-, Nature-, Magpie-, Ninja- or Dragon Impling Jar
+    itemID = convertToID("Eclectic Impling Jar") #Change item name to change graph
+    getItemDataApi(itemID) #Update itemprices in database
+    setItemValuesFromDB(itemID) #Get all prices related to the ID from the last 14 days
+except:
+    print("Problem reading either itemName or itemID")
+    setItemValuesFromDB(11260) #In case of error, show Impling Jar prices
+
+# Feed graph values to draw according to chosen ID
+test_y = [itemPrice]
+
+#Pygame initialisation
 pygame.init()
 pygame.font.init()
 myfont = pygame.font.SysFont('Comic Sans MS', 10)
