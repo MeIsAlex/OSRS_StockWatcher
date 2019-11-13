@@ -3,6 +3,7 @@
 import requests
 import threading
 import json
+import time
 
 from graph import Graph
 from input import InputBox
@@ -52,8 +53,8 @@ def connectDB():
     mydb.close()
 
 
-# Get the last 14 days of data from an itemID and store in in the database
-def getItemDataApi(itemID):
+# Get the last 14 days of data from an itemID from the API and store in in the database
+def storeItemDataApi(itemID):
     # Connect to database
     mydb = connectDB()
     # API call to get ID data from the last 180 days
@@ -81,6 +82,14 @@ def getItemDataApi(itemID):
             priceEnd = itemsApi[x].find(",")
             priceApi.append(itemsApi[x][priceStart + 1:priceEnd])
 
+    # Delete all the data that is older than 14 days
+    keepDate = getFourteenDaysAgo()
+    sql = "DELETE FROM item WHERE id = %s AND time <= %s"
+    values = [itemID, keepDate]
+    mycursor = mydb.cursor()
+    mycursor.execute(sql, values)
+    mydb.commit()
+    
     # Make SQL query to insert all new values
     sql = "INSERT INTO item (time, price, id) VALUES (%s, %s, %s)"
     values = []
@@ -127,7 +136,7 @@ def convertToID(name):
 
 
 # Get actual values from database
-def setItemValuesFromDB(itemID):
+def getItemValuesFromDB(itemID):
     # Clear any old values in variables
     itemPrice.clear()
     itemDate.clear()
@@ -151,6 +160,12 @@ def setItemValuesFromDB(itemID):
     itemPrice.reverse()
     itemDate.reverse()
 
+# Get the time fourteen days ago in miliseconds starting from 1/1/1970
+def getFourteenDaysAgo():
+    now = time.time()
+    now = now * 1000
+    # 14 days in miliseconds = 60 * 60 * 24 * 14 * 1000 = 1209600000 
+    return int(round((now - 129600000),0))
 
 # ------------------------------------#
 # Main program                       #
@@ -158,16 +173,15 @@ def setItemValuesFromDB(itemID):
 
 # Get all itemData from database
 getItemsDB()
-
 # Try to find item name in database, and grab the corresponding ID
 try:
     # Possible item names Baby-, Young-, Gourmet-, Earth-, Essence-, Eclectic-, Nature-, Magpie-, Ninja- or Dragon Impling Jar
     itemID = convertToID("Eclectic Impling Jar")  # Change item name to change graph
-    getItemDataApi(itemID)  # Update itemprices in database
-    setItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
+    storeItemDataApi(itemID)  # Update itemprices in database
+    getItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
 except:
     print("Problem reading either itemName or itemID")
-    setItemValuesFromDB(11260)  # In case of error, show Impling Jar prices
+    getItemValuesFromDB(11260)  # In case of error, show Impling Jar prices
 
 # Feed graph values to draw according to chosen ID
 test_y = [itemPrice]
