@@ -4,8 +4,8 @@ import requests
 import threading
 import json
 
-from OSRS_StockWatcher.graph import Graph
-from OSRS_StockWatcher.input import InputBox
+from graph import Graph
+from input import InputBox
 # pygame
 import pygame
 # Mysql database
