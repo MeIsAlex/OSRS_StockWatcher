@@ -58,7 +58,7 @@ class Graph:
     def make_line(self):
         i = 0
         for x in self.val_y:
-            self.lines.append(Line(self.start_x, self.start_y, i, x, self.max_y, self.min_y, self.max_values,self.screen))
+            self.lines.append(Line(self.start_x, self.start_y, i, x, self.max_y, self.min_y, self.max_values, self.screen))
             i += 1
 
     # calls function for each item
@@ -67,6 +67,7 @@ class Graph:
             for i in range(len(self.lines)):
                 self.lines[i].cal_val_y()
                 self.lines[i].draw_cords()
+        self.lines = []
 
 
 # class containing everything to calculate and draw 1 item

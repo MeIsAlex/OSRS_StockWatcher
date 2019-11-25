@@ -194,18 +194,11 @@ myfont = pygame.font.SysFont('Comic Sans MS', 10)
 # url_item()
 SCREEN = pygame.display.set_mode((640, 480))  # set the height and width of the screen
 SCREEN.fill(white)  # make the screen white
-graph = Graph(len(itemPrice), test_y,SCREEN)
 box = InputBox(100, 25, 10, 10, myfont, SCREEN)
 finish = False
 while not finish:
     # call all the functions needed to do stuff
     SCREEN.fill(white)
-    graph.find_min_max()
-    graph.cal_node()
-    graph.make_line()
-    graph.draw_line()
-    graph.plot_axis()
-    graph.plot_points()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finish = True
@@ -214,4 +207,11 @@ while not finish:
     box.show_searches()
     search = box.get_searches()
     box.draw()
+    graph = Graph(len(itemPrice), test_y, SCREEN)
+    graph.find_min_max()
+    graph.cal_node()
+    graph.make_line()
+    graph.draw_line()
+    graph.plot_axis()
+    graph.plot_points()
     pygame.display.flip()
