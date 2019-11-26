@@ -19,9 +19,9 @@ import mysql.connector
 # Array with all IDs
 itemDB = []
 # Array to store itemprices and dates,
-itemPrice = []
 itemDate = []
-loadedIDs = []
+itemPrice = []
+loadedIDs = dict()
 
 # Some colors to make drawing easier and shorter
 white = (255, 255, 255)
@@ -208,32 +208,27 @@ while not finish:
                     if itemID != "-1":
                         # Check if the item is already loaded recently by checking loadedIDs
                         foundNoID = True
-                        for idData in loadedIDs: #If the item was already loaded, use those values instead of doing another database call
-                            if itemID == idData[0]:
-                                test_y.append(idData[1])
-                                print()
+                        for key in loadedIDs: #If the item was already loaded, use those values instead of doing another database call
+                            if itemID == key:
+                                test_y.append(loadedIDs[key])
                                 foundNoID = False
 
                         if foundNoID: #If the ID wasn't loaded yet, get it from the database
+                            print("Added new ID: " + str(itemID))
                             storeItemDataApi(itemID)  # Update itemprices in database
                             getItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
-                            loadedIDs.append([itemID, itemPrice]) # Add the item to the loadedIDs
+                            loadedIDs[itemID] = itemPrice[:] # Add the item to the loadedIDs
                             test_y.append(itemPrice) #Add the prices to the list to draw
-
                 except:
-                    itemPrice = [14,13,12,11,10,9,8,7,6,5,4,3,2,1]
-                    test_y = [itemPrice]
+                    pass
         except:
-            itemPrice = itemPrice = [14,13,12,11,10,9,8,7,6,5,4,3,2,1]
-            test_y = [itemPrice]
-        for i in range(len(loadedIDs)):
-            print(str(loadedIDs[i][0]) + ", " + str(loadedIDs[i][1]))
-
-        print(len(test_y))
-    
+            pass
+        
+        for key in loadedIDs:
+            print(str(key) + " = " + str(loadedIDs[key]))
+        print(" ")
     # Feed graph values to draw according to chosen ID
     box.draw()
-    print(test_y)
     graph = Graph(len(itemPrice), test_y, SCREEN)
     graph.find_min_max()
     graph.cal_node()
