@@ -43,16 +43,17 @@ class Graph:
     # draw the dots on x and y axis and places values on y-axis
     # values x-axis coming soon
     def plot_points(self):
-        myfont = pygame.font.SysFont('Comic Sans MS', 10)
-        increment = int(420 / self.max_values)
-        for y in range(self.max_values):
-            cord_x = self.start_x + (y * increment)
-            pygame.draw.circle(self.screen, black, (cord_x, self.start_y), 3)
-        for y in range(self.max_values):
-            cord_y = self.start_y - (y * increment) - increment
-            textsurface = myfont.render(str(self.node_val[y]), False, black)
-            self.screen.blit(textsurface, (self.start_x - 40, cord_y - 5))
-            pygame.draw.circle(self.screen, black, (self.start_x, cord_y), 3)
+        if len(self.val_y) > 0:
+            myfont = pygame.font.SysFont('Comic Sans MS', 10)
+            increment = int(420 / self.max_values)
+            for y in range(self.max_values):
+                cord_x = self.start_x + (y * increment)
+                pygame.draw.circle(self.screen, black, (cord_x, self.start_y), 3)
+            for y in range(self.max_values):
+                cord_y = self.start_y - (y * increment) - increment
+                textsurface = myfont.render(str(self.node_val[y]), False, black)
+                self.screen.blit(textsurface, (self.start_x - 40, cord_y - 5))
+                pygame.draw.circle(self.screen, black, (self.start_x, cord_y), 3)
 
     # make line classes
     def make_line(self):
