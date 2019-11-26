@@ -185,6 +185,7 @@ SCREEN = pygame.display.set_mode((640, 480))  # set the height and width of the 
 SCREEN.fill(white)  # make the screen white
 box = InputBox(100, 25, 10, 10, myfont, SCREEN)
 test_y = []
+oldsearch = None
 finish = False
 while not finish:
     # call all the functions needed to do stuff
@@ -196,40 +197,43 @@ while not finish:
         box.remove_searches(event)
     box.show_searches()
     search = box.get_searches()
-    test_y.clear()
-    try:
-        for boxtext in search:
-            try:
-                # Possible item names Baby-, Young-, Gourmet-, Earth-, Essence-, Eclectic-, Nature-, Magpie-, Ninja- or Dragon Impling Jar
-                itemID = convertToID(boxtext)  # Change item name to change graph
-                if itemID != "-1":
-                    # Check if the item is already loaded recently by checking loadedIDs
-                    foundNoID = True
-                    for idData in loadedIDs: #If the item was already loaded, use those values instead of doing another database call
-                        if itemID == idData[0]:
-                            test_y.append(idData[1])
-                            print()
-                            foundNoID = False
-                            
-                    if foundNoID: #If the ID wasn't loaded yet, get it from the database
-                        storeItemDataApi(itemID)  # Update itemprices in database
-                        getItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
-                        loadedIDs.append([itemID, itemPrice]) # Add the item to the loadedIDs
-                        test_y.append(itemPrice) #Add the prices to the list to draw
-                        
-            except:
-                itemPrice = [14,13,12,11,10,9,8,7,6,5,4,3,2,1] 
-                test_y = [itemPrice]
-    except:
-        itemPrice = itemPrice = [14,13,12,11,10,9,8,7,6,5,4,3,2,1] 
-        test_y = [itemPrice]
-    for i in range(len(loadedIDs)):
-        print(str(loadedIDs[i][0]) + ", " + str(loadedIDs[i][1]))
+    if oldsearch != search:
+        oldsearch = search
+        test_y.clear()
+        try:
+            for boxtext in search:
+                try:
+                    # Possible item names Baby-, Young-, Gourmet-, Earth-, Essence-, Eclectic-, Nature-, Magpie-, Ninja- or Dragon Impling Jar
+                    itemID = convertToID(boxtext)  # Change item name to change graph
+                    if itemID != "-1":
+                        # Check if the item is already loaded recently by checking loadedIDs
+                        foundNoID = True
+                        for idData in loadedIDs: #If the item was already loaded, use those values instead of doing another database call
+                            if itemID == idData[0]:
+                                test_y.append(idData[1])
+                                print()
+                                foundNoID = False
 
-    print(len(test_y))
+                        if foundNoID: #If the ID wasn't loaded yet, get it from the database
+                            storeItemDataApi(itemID)  # Update itemprices in database
+                            getItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
+                            loadedIDs.append([itemID, itemPrice]) # Add the item to the loadedIDs
+                            test_y.append(itemPrice) #Add the prices to the list to draw
+
+                except:
+                    itemPrice = [14,13,12,11,10,9,8,7,6,5,4,3,2,1]
+                    test_y = [itemPrice]
+        except:
+            itemPrice = itemPrice = [14,13,12,11,10,9,8,7,6,5,4,3,2,1]
+            test_y = [itemPrice]
+        for i in range(len(loadedIDs)):
+            print(str(loadedIDs[i][0]) + ", " + str(loadedIDs[i][1]))
+
+        print(len(test_y))
     
     # Feed graph values to draw according to chosen ID
     box.draw()
+    print(test_y)
     graph = Graph(len(itemPrice), test_y, SCREEN)
     graph.find_min_max()
     graph.cal_node()
