@@ -118,9 +118,8 @@ def getItemsDB():
     mycursor.execute(sql)
 
     myresult = mycursor.fetchall()
-    itemdate = []  # Not used at the moment
     for result in myresult:
-        itemDB.append((result['itemID'], result['itemName']))
+        itemDB.append((result['itemID'], str(result['itemName'].lower())))
 
     # Close connection once done
     mycursor.close()
@@ -129,6 +128,8 @@ def getItemsDB():
 
 # Convert name to itemID
 def convertToID(name):
+    # Convert the name to lowercase, since database entries are stored lowercase too
+    name = name.lower()
     # Loop through all items to check if the name corresponds to an ID
     for i in range(len(itemDB)):
         if name == itemDB[i][1]:
@@ -178,6 +179,7 @@ getItemsDB()
 # Pygame initialisation
 pygame.init()
 pygame.font.init()
+pygame.display.set_caption('OSRS Stockwatcher')
 myfont = pygame.font.SysFont('Comic Sans MS', 10)
 # make_url_graph()
 # url_item()
@@ -188,7 +190,7 @@ test_y = []
 oldsearch = None
 finish = False
 while not finish:
-    # call all the functions needed to do stuff
+    # Call all the functions needed to do stuff
     SCREEN.fill(white)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -197,37 +199,35 @@ while not finish:
         box.remove_searches(event)
     box.show_searches()
     search = box.get_searches()
+    # Only update graph is something new is searched
     if oldsearch != search:
         oldsearch = search
         test_y.clear()
         try:
-            for boxtext in search:
-                try:
-                    # Possible item names Baby-, Young-, Gourmet-, Earth-, Essence-, Eclectic-, Nature-, Magpie-, Ninja- or Dragon Impling Jar
-                    itemID = convertToID(boxtext)  # Change item name to change graph
-                    if itemID != "-1":
-                        # Check if the item is already loaded recently by checking loadedIDs
-                        foundNoID = True
-                        for key in loadedIDs: #If the item was already loaded, use those values instead of doing another database call
-                            if itemID == key:
-                                test_y.append(loadedIDs[key])
-                                foundNoID = False
+            for boxtext in search: # Check all items being searched
+            #Check if the text is an item, then convert the name to the itemID
+                itemID = convertToID(boxtext)
+                if itemID != "-1": #If -1 returned, item doesn't exist
+                    # Check if the item is already loaded recently by checking loadedIDs
+                    foundNoID = True
+                    for key in loadedIDs: #If the item was already loaded, use those values instead of doing another database call
+                        if itemID == key:
+                            test_y.append(loadedIDs[key])
+                            foundNoID = False
 
-                        if foundNoID: #If the ID wasn't loaded yet, get it from the database
-                            print("Added new ID: " + str(itemID))
-                            storeItemDataApi(itemID)  # Update itemprices in database
-                            getItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
-                            loadedIDs[itemID] = itemPrice[:] # Add the item to the loadedIDs
-                            test_y.append(itemPrice) #Add the prices to the list to draw
-                except:
-                    pass
+                    if foundNoID: #If the ID wasn't loaded yet, get it from the database
+                        print("Added new ID: " + str(itemID))
+                        storeItemDataApi(itemID)  # Update itemprices in database
+                        getItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
+                        loadedIDs[itemID] = itemPrice[:] # Add the item to the loadedIDs
+                        test_y.append(itemPrice) #Add the prices to the list to draw
         except:
             pass
         
         for key in loadedIDs:
             print(str(key) + " = " + str(loadedIDs[key]))
         print(" ")
-    # Feed graph values to draw according to chosen ID
+        
     box.draw()
     graph = Graph(len(itemPrice), test_y, SCREEN)
     graph.find_min_max()
