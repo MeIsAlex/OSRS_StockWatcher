@@ -90,7 +90,7 @@ def storeItemDataApi(itemID):
     mycursor = mydb.cursor()
     mycursor.execute(sql, values)
     mydb.commit()
-    
+
     # Make SQL query to insert all new values
     sql = "INSERT INTO item (time, price, id) VALUES (%s, %s, %s)"
     values = []
@@ -134,7 +134,7 @@ def convertToID(name):
     for i in range(len(itemDB)):
         if name == itemDB[i][1]:
             return [itemDB[i][0], name]
-    return "-1"  # Return -1 in case the name wasn't found in the DB
+    return ["-1", 0]  # Return -1 in case the name wasn't found in the DB use zero as a dummy value
 
 
 # Get actual values from database
@@ -162,12 +162,14 @@ def getItemValuesFromDB(itemID):
     itemPrice.reverse()
     itemDate.reverse()
 
+
 # Get the time fourteen days ago in miliseconds starting from 1/1/1970
 def getFourteenDaysAgo():
     now = time.time()
     now = now * 1000
     # 14 days in miliseconds = 60 * 60 * 24 * 14 * 1000 = 1209600000 
-    return int(round((now - 129600000),0))
+    return int(round((now - 129600000), 0))
+
 
 # ------------------------------------#
 # Main program                       #
@@ -206,32 +208,36 @@ while not finish:
         oldsearch = search
         test_y.clear()
         try:
-            for boxtext in search: # Check all items being searched
-            #Check if the text is an item, then convert the name to the itemID
+            index = 0
+            for boxtext in search:  # Check all items being searched
+                # Check if the text is an item, then convert the name to the itemID
                 test = convertToID(boxtext)
                 itemID = test[0]
-                names.append(test[1]) #get the name if it converts to an id
-                if itemID != "-1": #If -1 returned, item doesn't exist
+                names.append(test[1])  # get the name if it converts to an id
+                if itemID != "-1":  # If -1 returned, item doesn't exist
                     # Check if the item is already loaded recently by checking loadedIDs
                     foundNoID = True
-                    for key in loadedIDs: #If the item was already loaded, use those values instead of doing another database call
+                    for key in loadedIDs:  # If the item was already loaded, use those values instead of doing another database call
                         if itemID == key:
                             test_y.append(loadedIDs[key])
                             foundNoID = False
 
-                    if foundNoID: #If the ID wasn't loaded yet, get it from the database
+                    if foundNoID:  # If the ID wasn't loaded yet, get it from the database
                         print("Added new ID: " + str(itemID))
                         storeItemDataApi(itemID)  # Update itemprices in database
                         getItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
-                        loadedIDs[itemID] = itemPrice[:] # Add the item to the loadedIDs
-                        test_y.append(itemPrice) #Add the prices to the list to draw
+                        loadedIDs[itemID] = itemPrice[:]  # Add the item to the loadedIDs
+                        test_y.append(itemPrice)  # Add the prices to the list to draw
+                else:
+                    box.check_search(index)  # if item does not exist delete it from the searches
+                index += 1
         except:
             pass
-        
+
         for key in loadedIDs:
             print(str(key) + " = " + str(loadedIDs[key]))
         print(" ")
-        
+
     box.draw()
     graph = Graph(len(itemPrice), test_y, SCREEN, names, 190, 450)
     graph.find_min_max()
