@@ -100,6 +100,8 @@ class Line:
     # draw the coordinates as a line graph
     def draw_cords(self):
         incr = int(420 / self.max_values)
+        myfont = pygame.font.SysFont('Comic Sans MS', 10)
+        textsurface = myfont.render(self.name, False, black)
         if len(self.val_y) > 0:
             for y in range(self.max_values - 1):
                 cord_x1 = self.startx + (y * incr)
@@ -108,3 +110,4 @@ class Line:
                     pygame.draw.line(self.screen, red, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
                 else:
                     pygame.draw.line(self.screen, green, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
+        self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30), self.cords_y[self.max_values-1]-10))
