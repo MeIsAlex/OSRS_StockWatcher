@@ -6,10 +6,11 @@ gray = (128,128,128)
 
 # the graph class stores everything we need to calculate and draw the graph
 class Graph:
-    def __init__(self, maxVal, values, screen):
-        self.start_x = 190
+    def __init__(self, maxVal, values, screen, name,startx,starty):
+        self.start_x = startx
+        self.name = name
         self.screen = screen
-        self.start_y = 450
+        self.start_y = starty
         self.val_y = values
         self.cords_y = []
         self.node_val = []
@@ -44,15 +45,20 @@ class Graph:
     # values x-axis coming soon
     def plot_points(self):
         if len(self.val_y) > 0:
-            myfont = pygame.font.SysFont('Comic Sans MS', 10)
+            myfont = pygame.font.SysFont('arial', 10)
             increment = int(420 / self.max_values)
+            val = self.max_values
             for y in range(self.max_values):
+                val -= 1
                 cord_x = self.start_x + (y * increment)
                 pygame.draw.circle(self.screen, black, (cord_x, self.start_y), 3)
+                textsurface = myfont.render(str(val), False, black)
+                self.screen.blit(textsurface, (cord_x-3, self.start_y+2))
             for y in range(self.max_values):
                 cord_y = self.start_y - (y * increment) - increment
                 textsurface = myfont.render(str(self.node_val[y]), False, black)
-                self.screen.blit(textsurface, (self.start_x - 40, cord_y - 5))
+                textwidth = textsurface.get_width()
+                self.screen.blit(textsurface, (self.start_x - textwidth - 3, cord_y-10))
                 pygame.draw.circle(self.screen, black, (self.start_x, cord_y), 3)
                 pygame.draw.line(self.screen, gray, (self.start_x, cord_y), ((self.start_x + 420), cord_y), 1)
 
@@ -60,7 +66,7 @@ class Graph:
     def make_line(self):
         i = 0
         for x in self.val_y:
-            self.lines.append(Line(self.start_x, self.start_y, i, x, self.max_y, self.min_y, self.max_values, self.screen))
+            self.lines.append(Line(self.start_x, self.start_y, i, x, self.max_y, self.min_y, self.max_values, self.screen, self.name[i]))
             i += 1
 
     # calls function for each item
@@ -75,7 +81,7 @@ class Graph:
 # class containing everything to calculate and draw 1 item
 # call multiple times to draw more lines
 class Line:
-    def __init__(self, startx, starty, num, x, max_y, min_y, max_val, screen, name="test"):
+    def __init__(self, startx, starty, num, x, max_y, min_y, max_val, screen, name):
         self.startx = startx
         self.starty = starty
         self.num = num
@@ -100,8 +106,10 @@ class Line:
     # draw the coordinates as a line graph
     def draw_cords(self):
         incr = int(420 / self.max_values)
-        myfont = pygame.font.SysFont('Comic Sans MS', 10)
+        myfont = pygame.font.SysFont('arial', 10)
         textsurface = myfont.render(self.name, False, black)
+        textwidth = textsurface.get_width()
+        textheight = textsurface.get_height()
         if len(self.val_y) > 0:
             for y in range(self.max_values - 1):
                 cord_x1 = self.startx + (y * incr)
@@ -110,4 +118,4 @@ class Line:
                     pygame.draw.line(self.screen, red, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
                 else:
                     pygame.draw.line(self.screen, green, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
-        self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30), self.cords_y[self.max_values-1]-10))
+        self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30)-textwidth, self.cords_y[self.max_values-1]-textheight-3))

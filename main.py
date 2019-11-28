@@ -133,7 +133,7 @@ def convertToID(name):
     # Loop through all items to check if the name corresponds to an ID
     for i in range(len(itemDB)):
         if name == itemDB[i][1]:
-            return itemDB[i][0]
+            return [itemDB[i][0], name]
     return "-1"  # Return -1 in case the name wasn't found in the DB
 
 
@@ -180,13 +180,14 @@ getItemsDB()
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption('OSRS Stockwatcher')
-myfont = pygame.font.SysFont('Comic Sans MS', 10)
+myfont = pygame.font.SysFont('arial', 15)
 # make_url_graph()
 # url_item()
 SCREEN = pygame.display.set_mode((640, 480))  # set the height and width of the screen
 SCREEN.fill(white)  # make the screen white
 box = InputBox(100, 25, 10, 10, myfont, SCREEN)
 test_y = []
+names = []
 oldsearch = None
 finish = False
 while not finish:
@@ -201,12 +202,15 @@ while not finish:
     search = box.get_searches()
     # Only update graph is something new is searched
     if oldsearch != search:
+        names = []
         oldsearch = search
         test_y.clear()
         try:
             for boxtext in search: # Check all items being searched
             #Check if the text is an item, then convert the name to the itemID
-                itemID = convertToID(boxtext)
+                test = convertToID(boxtext)
+                itemID = test[0]
+                names.append(test[1]) #get the name if it converts to an id
                 if itemID != "-1": #If -1 returned, item doesn't exist
                     # Check if the item is already loaded recently by checking loadedIDs
                     foundNoID = True
@@ -229,7 +233,7 @@ while not finish:
         print(" ")
         
     box.draw()
-    graph = Graph(len(itemPrice), test_y, SCREEN)
+    graph = Graph(len(itemPrice), test_y, SCREEN, names, 190, 450)
     graph.find_min_max()
     graph.cal_node()
     graph.make_line()
