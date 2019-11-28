@@ -40,7 +40,7 @@ class InputBox:
         font1 = pygame.font.SysFont('Comic Sans MS', 10)
         if ev.type == pygame.KEYDOWN:
             if self.active is True:
-                if ev.key == pygame.K_RETURN: # if key == enter safe the value and empty searchbar
+                if ev.key == pygame.K_RETURN: # if key == enter: Save the value and clear searchbar
                     ret_val = self.text
                     self.text = ""
                     self.textarea = font1.render(self.text, False, black)
@@ -94,9 +94,9 @@ class Search:
         pygame.draw.rect(self.screen, black, self.rect, 1)
         textarea = font1.render(self.text, False, black)
         self.screen.blit(textarea, (self.rect.x + 3, self.rect.y + 3))
-        pygame.draw.rect(self.screen, black, self.remove, 1)
-        pygame.draw.line(self.screen, red, (self.remove.x, self.remove.y), (self.remove.x + 23, self.remove.y + 23), 3)
-        pygame.draw.line(self.screen, red, (self.remove.x, (self.remove.y + 23)), ((self.remove.x + 23), self.remove.y), 3)
+        pygame.draw.rect(self.screen, black, self.remove, 2)
+        pygame.draw.line(self.screen, red, (self.remove.x + 5, self.remove.y + 5), (self.remove.x + 18, self.remove.y + 18), 3)
+        pygame.draw.line(self.screen, red, (self.remove.x + 5, (self.remove.y + 18)), ((self.remove.x + 18), self.remove.y + 5), 3)
 
     def events(self, ev):
         if ev.type == pygame.MOUSEBUTTONDOWN:
