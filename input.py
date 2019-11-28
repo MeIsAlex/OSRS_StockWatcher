@@ -37,14 +37,14 @@ class InputBox:
                 self.color = black
 
         # check for keypress
-        font1 = pygame.font.SysFont('Comic Sans MS', 10)
+        font1 = pygame.font.SysFont('arial', 12)
         if ev.type == pygame.KEYDOWN:
             if self.active is True:
                 if ev.key == pygame.K_RETURN: # if key == enter: Save the value and clear searchbar
                     ret_val = self.text
                     self.text = ""
                     self.textarea = font1.render(self.text, False, black)
-                    self.searches.append(Search(self.screen, ret_val, (50 + self.amount * (25 + 5))))
+                    self.searches.append(Search(self.screen, ret_val, (50 + self.amount * (25 + 5)), self.rect.x))
                     self.amount += 1
                 elif ev.key == pygame.K_BACKSPACE:
                     # remove the last value
@@ -82,17 +82,21 @@ class InputBox:
 
 
 class Search:
-    def __init__(self, screen, text, y):
+    def __init__(self, screen, text, y, x):
         self.screen = screen
         self.text = text
-        self.rect = pygame.Rect(10, y, 100, 25)
-        self.remove = pygame.Rect(85, y, 25, 25)
+        self.rect = pygame.Rect(x, y, 100, 25)
+        self.remove = pygame.Rect(x+100-25, y, 25, 25)
 
 # draw the searches and the remove rectangle for each search
     def draw(self):
-        font1 = pygame.font.SysFont('Comic Sans MS', 10)
+        font1 = pygame.font.SysFont('arial', 10)
         pygame.draw.rect(self.screen, black, self.rect, 1)
         textarea = font1.render(self.text, False, black)
+        textwidth = textarea.get_width()
+        if textwidth > self.rect.width:
+            self.rect.width = textwidth + 6 + 25
+            self.remove.x = 10 + self.rect.width-25
         self.screen.blit(textarea, (self.rect.x + 3, self.rect.y + 3))
         pygame.draw.rect(self.screen, black, self.remove, 2)
         pygame.draw.line(self.screen, red, (self.remove.x + 5, self.remove.y + 5), (self.remove.x + 18, self.remove.y + 18), 3)
