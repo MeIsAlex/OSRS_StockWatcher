@@ -180,7 +180,7 @@ getItemsDB()
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption('OSRS Stockwatcher')
-myfont = pygame.font.SysFont('Comic Sans MS', 10)
+myfont = pygame.font.SysFont('arial', 15)
 # make_url_graph()
 # url_item()
 SCREEN = pygame.display.set_mode((640, 480))  # set the height and width of the screen
@@ -233,7 +233,7 @@ while not finish:
         print(" ")
         
     box.draw()
-    graph = Graph(len(itemPrice), test_y, SCREEN, names)
+    graph = Graph(len(itemPrice), test_y, SCREEN, names, 190, 450)
     graph.find_min_max()
     graph.cal_node()
     graph.make_line()

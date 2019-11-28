@@ -6,11 +6,11 @@ gray = (128,128,128)
 
 # the graph class stores everything we need to calculate and draw the graph
 class Graph:
-    def __init__(self, maxVal, values, screen, name):
-        self.start_x = 190
+    def __init__(self, maxVal, values, screen, name,startx,starty):
+        self.start_x = startx
         self.name = name
         self.screen = screen
-        self.start_y = 450
+        self.start_y = starty
         self.val_y = values
         self.cords_y = []
         self.node_val = []
@@ -45,7 +45,7 @@ class Graph:
     # values x-axis coming soon
     def plot_points(self):
         if len(self.val_y) > 0:
-            myfont = pygame.font.SysFont('Comic Sans MS', 10)
+            myfont = pygame.font.SysFont('arial', 10)
             increment = int(420 / self.max_values)
             val = self.max_values
             for y in range(self.max_values):
@@ -53,7 +53,7 @@ class Graph:
                 cord_x = self.start_x + (y * increment)
                 pygame.draw.circle(self.screen, black, (cord_x, self.start_y), 3)
                 textsurface = myfont.render(str(val), False, black)
-                self.screen.blit(textsurface, (cord_x-3, self.start_y))
+                self.screen.blit(textsurface, (cord_x-3, self.start_y+2))
             for y in range(self.max_values):
                 cord_y = self.start_y - (y * increment) - increment
                 textsurface = myfont.render(str(self.node_val[y]), False, black)
@@ -106,7 +106,7 @@ class Line:
     # draw the coordinates as a line graph
     def draw_cords(self):
         incr = int(420 / self.max_values)
-        myfont = pygame.font.SysFont('Comic Sans MS', 10)
+        myfont = pygame.font.SysFont('arial', 10)
         textsurface = myfont.render(self.name, False, black)
         textwidth = textsurface.get_width()
         textheight = textsurface.get_height()
