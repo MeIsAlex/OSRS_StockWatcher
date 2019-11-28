@@ -2,7 +2,7 @@ import pygame
 green = (0, 255, 0)
 red = (255, 0, 0)
 black = (0, 0, 0)
-
+gray = (128,128,128)
 
 # the graph class stores everything we need to calculate and draw the graph
 class Graph:
@@ -32,7 +32,7 @@ class Graph:
         temp = diff / (self.max_values - 1)
         for y in range(self.max_values):
             value = self.min_y + (y * temp)
-            self.node_val.append(round(value, 1))
+            self.node_val.append(round(value))
         self.node_val
 
     # draw the x and y axis
@@ -54,6 +54,7 @@ class Graph:
                 textsurface = myfont.render(str(self.node_val[y]), False, black)
                 self.screen.blit(textsurface, (self.start_x - 40, cord_y - 5))
                 pygame.draw.circle(self.screen, black, (self.start_x, cord_y), 3)
+                pygame.draw.line(self.screen, gray, (self.start_x, cord_y), ((self.start_x + 420), cord_y), 1)
 
     # make line classes
     def make_line(self):
