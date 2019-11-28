@@ -80,6 +80,11 @@ class InputBox:
                 self.amount -= 1
             x += 1
 
+    def check_search(self, i):
+        # used to delete a value when its not valid
+        self.searches.pop(i)
+        self.amount -= 1
+
 
 class Search:
     def __init__(self, screen, text, y, x):
