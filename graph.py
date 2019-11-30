@@ -1,4 +1,5 @@
 import pygame
+import datetime
 green = (0, 255, 0)
 red = (255, 0, 0)
 black = (0, 0, 0)
@@ -39,20 +40,26 @@ class Graph:
     # draw the x and y axis
     def plot_axis(self):
         pygame.draw.line(self.screen, black, (self.start_x, self.start_y), (self.start_x, (self.start_y - 420)), 3)
-        pygame.draw.line(self.screen, black, (self.start_x, self.start_y), ((self.start_x + 420), self.start_y), 3)
+        pygame.draw.line(self.screen, black, (self.start_x, self.start_y), ((self.start_x + 390), self.start_y), 3)
 
     # draw the dots on x and y axis and places values on y-axis
-    # values x-axis coming soon
     def plot_points(self):
         if len(self.val_y) > 0:
-            myfont = pygame.font.SysFont('arial', 10)
+            myfont = pygame.font.SysFont('arial', 12)
             increment = int(420 / self.max_values)
             val = self.max_values
+            #Calculate dates (now and 13 before)
+            dates = []
+            currentdate = datetime.datetime.now()
+            for i in range(self.max_values):
+                date = currentdate - datetime.timedelta(days=i)
+                dates.append(date.strftime("%d/%m"))
+            
             for y in range(self.max_values):
                 val -= 1
                 cord_x = self.start_x + (y * increment)
                 pygame.draw.circle(self.screen, black, (cord_x, self.start_y), 3)
-                textsurface = myfont.render(str(val), False, black)
+                textsurface = myfont.render(dates[-1 - y], False, black)
                 self.screen.blit(textsurface, (cord_x-3, self.start_y+2))
             for y in range(self.max_values):
                 cord_y = self.start_y - (y * increment) - increment
@@ -60,7 +67,7 @@ class Graph:
                 textwidth = textsurface.get_width()
                 self.screen.blit(textsurface, (self.start_x - textwidth - 3, cord_y-10))
                 pygame.draw.circle(self.screen, black, (self.start_x, cord_y), 3)
-                pygame.draw.line(self.screen, gray, (self.start_x, cord_y), ((self.start_x + 420), cord_y), 1)
+                pygame.draw.line(self.screen, gray, (self.start_x, cord_y), ((self.start_x + 390), cord_y), 1) #Draw horizontal gray lines
 
     # make line classes
     def make_line(self):
@@ -106,7 +113,7 @@ class Line:
     # draw the coordinates as a line graph
     def draw_cords(self):
         incr = int(420 / self.max_values)
-        myfont = pygame.font.SysFont('arial', 10)
+        myfont = pygame.font.SysFont('arial', 15)
         textsurface = myfont.render(self.name, False, black)
         textwidth = textsurface.get_width()
         textheight = textsurface.get_height()
@@ -118,4 +125,8 @@ class Line:
                     pygame.draw.line(self.screen, red, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
                 else:
                     pygame.draw.line(self.screen, green, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
-        self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30)-textwidth, self.cords_y[self.max_values-1]-textheight-3))
+        #self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30)-textwidth, self.cords_y[self.max_values-1]-textheight-3))  #Alligned to the right of the graph
+        self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30 + 5), self.cords_y[self.max_values-1]-(textheight/2))) #Alligned behind the graph
+
+
+        
