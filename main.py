@@ -204,7 +204,6 @@ while not finish:
         oldsearch = search
         test_y.clear()
         try:
-            print(itemDB)
             index = 0
             for boxtext in search:  # Check all items being searched
                 # Check if the text is an item, then convert the name to the itemID
