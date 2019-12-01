@@ -1,9 +1,8 @@
-# need these 2 for api calls and multithreading
-# check commented out functions
 import requests
 import threading
 import json
 import time
+import datetime
 
 from graph import Graph
 from input import InputBox
@@ -19,7 +18,6 @@ import mysql.connector
 # Array with all IDs
 itemDB = []
 # Array to store itemprices and dates,
-itemDate = []
 itemPrice = []
 loadedIDs = dict()
 
@@ -139,9 +137,8 @@ def convertToID(name):
 
 # Get actual values from database
 def getItemValuesFromDB(itemID):
-    # Clear any old values in variables
+    # Clear any old values in variable
     itemPrice.clear()
-    itemDate.clear()
 
     # Connect to DB
     mydb = connectDB()
@@ -152,7 +149,6 @@ def getItemValuesFromDB(itemID):
 
     for result in myresult:
         itemPrice.append(result['price'])
-        itemDate.append(result['time'])
 
     # Close connection
     mycursor.close()
@@ -160,7 +156,6 @@ def getItemValuesFromDB(itemID):
 
     # Turn values back in the right order (they are backwards)
     itemPrice.reverse()
-    itemDate.reverse()
 
 
 # Get the time fourteen days ago in miliseconds starting from 1/1/1970
@@ -185,9 +180,9 @@ pygame.display.set_caption('OSRS Stockwatcher')
 myfont = pygame.font.SysFont('arial', 15)
 # make_url_graph()
 # url_item()
-SCREEN = pygame.display.set_mode((640, 480))  # set the height and width of the screen
+SCREEN = pygame.display.set_mode((800, 480))  # set the height and width of the screen
 SCREEN.fill(white)  # make the screen white
-box = InputBox(100, 25, 10, 10, myfont, SCREEN)
+box = InputBox(150, 25, 10, 10, myfont, SCREEN)
 test_y = []
 names = []
 oldsearch = None
@@ -202,12 +197,13 @@ while not finish:
         box.remove_searches(event)
     box.show_searches()
     search = box.get_searches()
-    # Only update graph is something new is searched
+    # Only update graph if something new is searched
     if oldsearch != search:
         names = []
         oldsearch = search
         test_y.clear()
         try:
+            print(itemDB)
             index = 0
             for boxtext in search:  # Check all items being searched
                 # Check if the text is an item, then convert the name to the itemID
@@ -223,8 +219,10 @@ while not finish:
                             foundNoID = False
 
                     if foundNoID:  # If the ID wasn't loaded yet, get it from the database
-                        print("Added new ID: " + str(itemID))
-                        storeItemDataApi(itemID)  # Update itemprices in database
+                        try: #Try to update prices in the database by calling osrs api for new data
+                            storeItemDataApi(itemID)  # Update itemprices in database
+                        except: #If not reachable, don't update database and use old data instead
+                            pass
                         getItemValuesFromDB(itemID)  # Get all prices related to the ID from the last 14 days
                         loadedIDs[itemID] = itemPrice[:]  # Add the item to the loadedIDs
                         test_y.append(itemPrice)  # Add the prices to the list to draw
@@ -233,13 +231,9 @@ while not finish:
                 index += 1
         except:
             pass
-
-        for key in loadedIDs:
-            print(str(key) + " = " + str(loadedIDs[key]))
-        print(" ")
-
+        
     box.draw()
-    graph = Graph(len(itemPrice), test_y, SCREEN, names, 190, 450)
+    graph = Graph(len(itemPrice), test_y, SCREEN, names, 250, 450)
     graph.find_min_max()
     graph.cal_node()
     graph.make_line()

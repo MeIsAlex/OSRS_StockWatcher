@@ -37,7 +37,7 @@ class InputBox:
                 self.color = black
 
         # check for keypress
-        font1 = pygame.font.SysFont('arial', 12)
+        font1 = pygame.font.SysFont('arial', 15)
         if ev.type == pygame.KEYDOWN:
             if self.active is True:
                 if ev.key == pygame.K_RETURN: # if key == enter: Save the value and clear searchbar
@@ -90,12 +90,12 @@ class Search:
     def __init__(self, screen, text, y, x):
         self.screen = screen
         self.text = text
-        self.rect = pygame.Rect(x, y, 100, 25)
-        self.remove = pygame.Rect(x+100-25, y, 25, 25)
+        self.rect = pygame.Rect(x, y, 150, 25)
+        self.remove = pygame.Rect(x+150-25, y, 25, 25)
 
 # draw the searches and the remove rectangle for each search
     def draw(self):
-        font1 = pygame.font.SysFont('arial', 10)
+        font1 = pygame.font.SysFont('arial', 15)
         pygame.draw.rect(self.screen, black, self.rect, 1)
         textarea = font1.render(self.text, False, black)
         textwidth = textarea.get_width()
