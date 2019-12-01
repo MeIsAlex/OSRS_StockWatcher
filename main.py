@@ -45,7 +45,9 @@ def connectDB():
         )
         return mydb
     except:
-        print("Database OSRS could not be accessed")
+        print("The OSRS database could not be accessed/found")
+        print("Press ENTER to close the application")
+        input()
         exit()
 
     # Close connection once done
