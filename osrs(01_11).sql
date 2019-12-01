@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.5
+-- version 4.9.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Gegenereerd op: 27 nov 2019 om 14:20
--- Serverversie: 10.1.38-MariaDB
--- PHP-versie: 7.3.2
+-- Generation Time: Dec 01, 2019 at 11:39 AM
+-- Server version: 10.4.6-MariaDB
+-- PHP Version: 7.1.32
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -25,7 +25,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `item`
+-- Table structure for table `item`
 --
 
 CREATE TABLE `item` (
@@ -35,10 +35,52 @@ CREATE TABLE `item` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Gegevens worden geëxporteerd voor tabel `item`
+-- Dumping data for table `item`
 --
 
 INSERT INTO `item` (`id`, `time`, `price`) VALUES
+(315, 1573948800000, 21),
+(315, 1574035200000, 21),
+(315, 1574121600000, 23),
+(315, 1574208000000, 24),
+(315, 1574294400000, 24),
+(315, 1574380800000, 23),
+(315, 1574467200000, 24),
+(315, 1574553600000, 25),
+(315, 1574640000000, 24),
+(315, 1574726400000, 24),
+(315, 1574812800000, 24),
+(315, 1574899200000, 24),
+(315, 1574985600000, 25),
+(315, 1575072000000, 25),
+(317, 1573948800000, 32),
+(317, 1574035200000, 32),
+(317, 1574121600000, 31),
+(317, 1574208000000, 32),
+(317, 1574294400000, 32),
+(317, 1574380800000, 32),
+(317, 1574467200000, 32),
+(317, 1574553600000, 32),
+(317, 1574640000000, 31),
+(317, 1574726400000, 31),
+(317, 1574812800000, 30),
+(317, 1574899200000, 29),
+(317, 1574985600000, 29),
+(317, 1575072000000, 29),
+(377, 1573948800000, 119),
+(377, 1574035200000, 119),
+(377, 1574121600000, 123),
+(377, 1574208000000, 129),
+(377, 1574294400000, 133),
+(377, 1574380800000, 137),
+(377, 1574467200000, 137),
+(377, 1574553600000, 136),
+(377, 1574640000000, 141),
+(377, 1574726400000, 148),
+(377, 1574812800000, 156),
+(377, 1574899200000, 163),
+(377, 1574985600000, 154),
+(377, 1575072000000, 146),
 (383, 1573603200000, 888),
 (383, 1573689600000, 901),
 (383, 1573776000000, 919),
@@ -295,7 +337,7 @@ INSERT INTO `item` (`id`, `time`, `price`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `itemname`
+-- Table structure for table `itemname`
 --
 
 CREATE TABLE `itemname` (
@@ -304,7 +346,7 @@ CREATE TABLE `itemname` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Gegevens worden geëxporteerd voor tabel `itemname`
+-- Dumping data for table `itemname`
 --
 
 INSERT INTO `itemname` (`itemID`, `itemName`) VALUES
@@ -314,7 +356,7 @@ INSERT INTO `itemname` (`itemID`, `itemName`) VALUES
 (361, 'Tuna'),
 (371, ' Raw Swordfish'),
 (373, 'Swordfish'),
-(377, ' Raw Lobster'),
+(377, 'Raw Lobster'),
 (379, 'Lobster'),
 (383, 'Raw Shark'),
 (385, 'Shark'),
@@ -339,27 +381,27 @@ INSERT INTO `itemname` (`itemID`, `itemName`) VALUES
 (11260, 'Impling Jar');
 
 --
--- Indexen voor geëxporteerde tabellen
+-- Indexes for dumped tables
 --
 
 --
--- Indexen voor tabel `item`
+-- Indexes for table `item`
 --
 ALTER TABLE `item`
   ADD PRIMARY KEY (`id`,`time`);
 
 --
--- Indexen voor tabel `itemname`
+-- Indexes for table `itemname`
 --
 ALTER TABLE `itemname`
   ADD PRIMARY KEY (`itemID`);
 
 --
--- Beperkingen voor geëxporteerde tabellen
+-- Constraints for dumped tables
 --
 
 --
--- Beperkingen voor tabel `item`
+-- Constraints for table `item`
 --
 ALTER TABLE `item`
   ADD CONSTRAINT `item_ibfk_1` FOREIGN KEY (`id`) REFERENCES `itemname` (`itemID`) ON DELETE CASCADE;
