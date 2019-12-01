@@ -125,8 +125,8 @@ class Line:
                     pygame.draw.line(self.screen, red, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
                 else:
                     pygame.draw.line(self.screen, green, (cord_x1, self.cords_y[y]), (cord_x2, self.cords_y[y + 1]), 2)
-        #self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30)-textwidth, self.cords_y[self.max_values-1]-textheight-3))  #Alligned to the right of the graph
-        self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30 + 5), self.cords_y[self.max_values-1]-(textheight/2))) #Alligned behind the graph
+        # self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30)-textwidth, self.cords_y[self.max_values-1]-textheight-3)) Alligned to the right of the graph
+        self.screen.blit(textsurface, (self.startx + ((len(self.val_y)-1) * 30 + 5), self.cords_y[self.max_values-1]-(textheight/2)))  #Alligned behind the graph
 
 
         
