@@ -44,7 +44,9 @@ def connectDB():
         )
         return mydb
     except:
-        print("Database OSRS could not be accessed")
+        print("The OSRS database could not be accessed/found")
+        print("Press ENTER to close the application")
+        input()
         exit()
 
     # Close connection once done
@@ -202,7 +204,6 @@ while not finish:
         oldsearch = search
         test_y.clear()
         try:
-            print(itemDB)
             index = 0
             for boxtext in search:  # Check all items being searched
                 # Check if the text is an item, then convert the name to the itemID
